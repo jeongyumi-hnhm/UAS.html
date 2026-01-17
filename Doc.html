@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', Sans-Serif;
+        }
+        body {
+            background: url('https://images.unsplash.com/photo-1506102383123-c8ef1e872756?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            background-color: rgba(87, 196, 247, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            margin-top: 30px;
+        }
+        h1 {
+            color: rgba(4, 26, 188, 0.8);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #taskInput {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid rgba(255, 190, 223, 0.8);
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        #taskInput:hover {
+            background-color: rgba(115, 188, 250, 0.98);
+        }
+        #addTaskBtn {
+            padding: 12px 20px;
+            background-color: rgba(251, 168, 211, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+        }
+        #addTaskBtn:hover {
+            background-color: #2980b9;
+        }
+        .counter-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(255, 190, 223, 0.98);
+            border-radius: 5px;
+        }
+        .counter-section:hover {
+            background-color: rgba(115, 188, 250, 0.98);
+        }
+        .counter-section p {
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: 500;
+            margin: 0;
+        }
+        .counter-section span {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        .task-item.completed {
+            background-color: #e8f5e9;
+            text-decoration: line-through;
+            color: #2ecc71;
+        }
+        .task-actions button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .complete-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .complete-btn:hover {
+            background-color: #27ae60;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daftar Tugas Harian</h1>
+        
+        <!-- Input Section -->
+        <div class="input-section">
+            <input type="text" id="taskInput" placeholder="Masukan nama tugas...">
+            <button id="addTaskBtn"><i class="fas fa-plus"></i></button>
+        </div>
+        
+        <!-- Counter Section -->
+        <div class="counter-section">
+            <p>Total Tugas : <span id="totalTask">0</span></p>
+            <p>Tugas Selesai : <span id="completedTask">0</span></p>
+        </div>
+        
+        <!-- Task List Section -->
+        <div class="task-list" id="taskList"></div>
+    </div>
+
+    <script>
+        // Ambil elemen DOM
+        const taskInput = document.getElementById('taskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskList = document.getElementById('taskList');
+        const totalTask = document.getElementById('totalTask');
+        const completedTask = document.getElementById('completedTask');
+
+        // Array untuk menyimpan tugas
+        let tasks = [];
+
+        // Fungsi update counter
+        function updateCounter() {
+            totalTask.textContent = tasks.length;
+            const completedCount = tasks.filter(task => task.completed).length;
+            completedTask.textContent = completedCount;
+        }
+
+        // Fungsi tampilkan tugas
+        function renderTasks() {
+            taskList.innerHTML = ''; // Kosongkan daftar terlebih dahulu
+
+            tasks.forEach((task, index) => {
+                // Buat elemen tugas
+                const taskItem = document.createElement('div');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskItem.innerHTML = `
+                    <span>${task.name}</span>
+                    <div class="task-actions">
+                        <button class="complete-btn"><i class="fas fa-check"></i></button>
+                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+
+                // Tambahkan event listener untuk tombol selesai
+                const completeBtn = taskItem.querySelector('.complete-btn');
+                completeBtn.addEventListener('click', () => {
+                    tasks[index].completed = !tasks[index].completed;
+                    renderTasks();
+                    updateCounter();
+                });
+
+                // Tambahkan event listener untuk tombol hapus
+                const deleteBtn = taskItem.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    tasks.splice(index, 1);
+                    renderTasks();
+                    updateCounter();
+                });
+
+                // Tambahkan ke daftar
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        // Fungsi tambah tugas
+        function addTask() {
+            const taskName = taskInput.value.trim();
+
+            // Validasi input tidak kosong
+            if (taskName === '') {
+                alert('Nama tugas tidak boleh kosong!');
+                return;
+            }
+
+            // Tambahkan tugas ke array
+            tasks.push({
+                name: taskName,
+                completed: false
+            });
+
+            // Reset input
+            taskInput.value = '';
+
+            // Update tampilan
+            renderTasks();
+            updateCounter();
+        }
+
+        // Event listener tombol tambah
+        addTaskBtn.addEventListener('click', addTask);
+
+        // Event listener tekan Enter
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Inisialisasi
+        updateCounter();
+    </script>
+</body>
+</html>
